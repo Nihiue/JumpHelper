@@ -69,11 +69,11 @@ namespace MyJumpHelper
                     myPro.StartInfo.RedirectStandardError = true;
                     myPro.StartInfo.CreateNoWindow = true;
                     myPro.Start();                    
-                    string str = string.Format(@"{0} {1} {2}", "adb shell input swipe 300 300 300 300", duration, "&exit");
+                    string str = string.Format(@"{0} {1} {2}", "adb shell input swipe 300 800 300 800", duration, "&exit");
 
                     myPro.StandardInput.WriteLine(str);
                     myPro.StandardInput.AutoFlush = true;
-                    myPro.WaitForExit();
+                    // myPro.WaitForExit();
 
                     result = true;
                 }
