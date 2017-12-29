@@ -18,8 +18,13 @@
 5. 在手机端打开【跳一跳】，在PC的投屏上用鼠标指向起跳点，按下数字键1，再鼠标指向目标点，按下数字键2
 6. 如果一切正常，程序会通过 ADB 发送模拟点击事件，完成一次跳跃
 
-## 参数调整
+## 参数
 因为屏幕分辨率及投屏大小不同，可能需要调整 Conversion Ratio。 1080p 屏幕下全屏的典型值是2.5
+
+## 截图
+![run](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/pics/run.png)
+
+![game](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/pics/game.png)
 
 
 
