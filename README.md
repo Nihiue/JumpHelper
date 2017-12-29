@@ -24,7 +24,7 @@
 ## 截图
 ![run](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/pics/run.png)
 
-![game](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/pics/game.png)
+![game](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/pics/game.jpg)
 
 
 
