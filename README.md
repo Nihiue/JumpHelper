@@ -15,7 +15,7 @@
 
 ## 步骤
 
-1. 编译或者下载已编译版本 https://pan.baidu.com/s/1qXJIyuw （若报毒请参照已知问题）
+1. 编译或者下载已编译版本 [下载地址](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/JumpHelper.exe)（若报毒请参照已知问题）
 2. 打开手机的 Debug 调试功能，并使用 USB 连接电脑
 3. 使用任何手段将手机投屏到电脑，推荐使用 Win10 的 【投影到此电脑】
 4. 运行程序并点击 Start
@@ -30,7 +30,9 @@
 * delta 在 PC 屏幕上标注的两点间距离，单位是像素
 * ratio 转换系数，可调整
 
-因为屏幕分辨率及投屏大小不同，可能需要根据实际运行时的效果调整 Conversion Ratio. 1080p 屏幕下全屏的典型值是2.5
+因为屏幕分辨率及投屏大小不同，可能需要根据实际运行时的效果调整 Conversion Ratio.
+
+1080p 屏幕下的典型值是2.5
 
 
 ## 已知问题
@@ -43,9 +45,9 @@
 
 ## 截图
 
-![run](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/pics/run.png)
+![run](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/run.png)
 
-![game](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/pics/game.jpg)
+![game](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/game.jpg)
 
 
 
