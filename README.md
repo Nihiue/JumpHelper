@@ -11,12 +11,17 @@
 * Windows PC，已安装 ADB
 
 ## 步骤
-1. 编译或者下载已编译版本 https://pan.baidu.com/s/1qXJIyuw
+1. 编译或者下载已编译版本 https://pan.baidu.com/s/1qXJIyuw （若报毒请参照已知问题）
 2. 打开手机的 Debug 调试功能，并使用 USB 连接电脑
 3. 使用任何手段将手机投屏到电脑，推荐使用 Win10 的 【投影到此电脑】
 4. 运行程序并点击 Start
 5. 在手机端打开【跳一跳】，在PC的投屏上用鼠标指向起跳点，按下数字键1，再鼠标指向目标点，按下数字键2
 6. 如果一切正常，程序会通过 ADB 发送模拟点击事件，完成一次跳跃
+
+## 已知问题
+因为快捷键Hook了全局键盘事件，下载的exe文件会被MSE(Microsoft Security Essentials)误报为病毒
+如果仍觉得有问题请自行审阅代码并编译
+附上其他杀毒引擎的扫描结果 http://r.virscan.org/report/eb8cf44dd906cccf6e720d5b1e406740
 
 ## 参数
 因为屏幕分辨率及投屏大小不同，可能需要调整 Conversion Ratio。 1080p 屏幕下全屏的典型值是2.5
