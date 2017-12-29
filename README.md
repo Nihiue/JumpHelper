@@ -18,13 +18,16 @@
 5. 在手机端打开【跳一跳】，在PC的投屏上用鼠标指向起跳点，按下数字键1，再鼠标指向目标点，按下数字键2
 6. 如果一切正常，程序会通过 ADB 发送模拟点击事件，完成一次跳跃
 
-## 已知问题
-因为快捷键Hook了全局键盘事件，下载的exe文件会被MSE(Microsoft Security Essentials)误报为病毒
-如果仍觉得有问题请自行审阅代码并编译
-附上其他杀毒引擎的扫描结果 http://r.virscan.org/report/eb8cf44dd906cccf6e720d5b1e406740
-
 ## 参数
 因为屏幕分辨率及投屏大小不同，可能需要调整 Conversion Ratio。 1080p 屏幕下全屏的典型值是2.5
+
+
+## 已知问题
+因为快捷键Hook了全局键盘事件，下载的exe文件会被MSE(Microsoft Security Essentials)误报为病毒
+
+如果仍觉得有问题请自行审阅代码并编译
+
+附上其他杀毒引擎的扫描结果 http://r.virscan.org/report/eb8cf44dd906cccf6e720d5b1e406740
 
 ## 截图
 ![run](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/pics/run.png)
