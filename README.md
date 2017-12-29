@@ -37,11 +37,17 @@
 
 ## 已知问题
 
+### MSE 报毒
+
 因为快捷键 Hook 了全局键盘事件，下载的 exe 文件会被 MSE(Microsoft Security Essentials) 误报为病毒
 
 如果仍觉得有问题请自行审阅代码并编译
 
-附上其他杀毒引擎的扫描结果 http://r.virscan.org/report/eb8cf44dd906cccf6e720d5b1e406740
+附上其他杀毒引擎的扫描结果 http://r.virscan.org/report/9e2b82910304501137842fbeef6bfbd1
+
+### 测试 ADB 是否正常运行
+
+因为命令发送到手机需要通过 ADB，所以需要确认系统中已安装 ADB 并且运行正常
 
 ## 截图
 
