@@ -22,7 +22,7 @@ namespace MyJumpHelper
         private int endY = 0;
         private bool isReadyToJump = false;
         private double convRatio = 2.5;
-
+        private string adbPath = "adb.exe";
         public JumpHelper()
         {
             InitializeComponent();
@@ -30,7 +30,7 @@ namespace MyJumpHelper
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+          
         }
 
 
@@ -55,6 +55,7 @@ namespace MyJumpHelper
             }
         }
 
+
         private bool sendTouchCmd(int duration)
         {
             bool result = false;
@@ -69,7 +70,7 @@ namespace MyJumpHelper
                     myPro.StartInfo.RedirectStandardError = true;
                     myPro.StartInfo.CreateNoWindow = true;
                     myPro.Start();                    
-                    string str = string.Format(@"{0} {1} {2}", "adb shell input swipe 300 800 300 800", duration, "&exit");
+                    string str = string.Format(@"""{0}"" {1} {2} {3}", this.adbPath, "shell input swipe 300 800 300 800", duration, "&exit");
 
                     myPro.StandardInput.WriteLine(str);
                     myPro.StandardInput.AutoFlush = true;
@@ -145,6 +146,73 @@ namespace MyJumpHelper
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start("https://github.com/Nihiue/JumpHelper/blob/master/README.md");
+        }
+
+        private void groupBox2_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Multiselect = false;//该值确定是否可以选择多个文件
+            dialog.Title = "Choose ADB";
+            dialog.Filter = "ADB file|adb.exe";
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                this.adbPath = dialog.FileName;
+                this.label6.Text = this.adbPath;
+            }
+        }
+
+        private void groupBox3_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            bool result = false;
+            try
+            {
+                using (Process myPro = new Process())
+                {
+                    myPro.StartInfo.FileName = "cmd.exe";
+                    myPro.StartInfo.UseShellExecute = false;
+                    myPro.StartInfo.RedirectStandardInput = true;
+                    myPro.StartInfo.RedirectStandardOutput = true;
+                    myPro.StartInfo.RedirectStandardError = true;
+                    myPro.StartInfo.CreateNoWindow = true;
+                    myPro.Start();
+                    string str = string.Format(@"""{0}"" {1} {2}", this.adbPath, "devices", "&exit");
+
+                    myPro.StandardInput.WriteLine(str);
+                    myPro.StandardInput.AutoFlush = true;                    
+                    myPro.WaitForExit();
+                    string output = myPro.StandardOutput.ReadToEnd();
+                    if (!output.Contains("List of devices attached")) {
+                        MessageBox.Show("ADB not found");
+                        return;
+                    }
+                    output = output.Substring(output.LastIndexOf("List of devices attached") + 24);
+                    if (output.Contains("device")) {
+                        MessageBox.Show("Success\n" + output);
+                    } else if (output.Contains("unauthorized")) {
+                        MessageBox.Show("Please click [accept] on your phone\n" + output);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Fail\n" + output);
+                    }
+                    
+                    result = true;
+                }
+            }
+            catch
+            {
+
+            }
         }
     }
 }
