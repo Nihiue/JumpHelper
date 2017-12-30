@@ -35,8 +35,6 @@
 
 ### ADB问题
 
-#### ADB not found
-
 #### Please click accept on your phone
 重新插拔手机，点击 Test，并在手机上接受调试
 
