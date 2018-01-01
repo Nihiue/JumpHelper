@@ -27,7 +27,7 @@ namespace MyJumpHelper
         private void Form1_Load(object sender, EventArgs e)
         {
             this.jpTimer.Elapsed += new ElapsedEventHandler(timeTrigger);
-            this.jpTimer.Interval = 4500;
+            this.jpTimer.Interval = 5000;
             this.jpTimer.AutoReset = true;//执行一次 false，一直执行true  
 
         }
@@ -93,36 +93,37 @@ namespace MyJumpHelper
 
             Color curColor;
             lockbmp.LockBits();
-            Color topCorlor = lockbmp.GetPixel(0, 0);
-            Color bottomColor = lockbmp.GetPixel((int)(lockbmp.Width  * 0.1), lockbmp.Height - 1);
-            Color bottomColorLeft = lockbmp.GetPixel(0, lockbmp.Height - 1);
-            Color bottomColorRight = lockbmp.GetPixel(lockbmp.Width -1, lockbmp.Height - 1);
-            Color bottomColorCenter = lockbmp.GetPixel((int)(lockbmp.Width * 0.5), lockbmp.Height - 1);
-            for (int i = 1; i < 7; i++) {
-                Color sample = lockbmp.GetPixel((int)(lockbmp.Width * i * 0.15), lockbmp.Height - 1);
-                int count = 0;
-                if (this.calColorErr(sample, bottomColorLeft) < 100) {
-                    count++;                  
-                }
+            
+           
+            // find bottom background color
+            Color[] bottomColorArr = new Color[10];
 
-                if (this.calColorErr(sample, bottomColorRight) < 100)
-                {
-                    count++;                   
-                }
+            for (int i = 0; i < 10; i++) {
+                bottomColorArr[i] = lockbmp.GetPixel((int)(lockbmp.Width * i * 0.1), lockbmp.Height - 1);               
+            }
 
-                if (this.calColorErr(sample, bottomColorCenter) < 100)
-                {
-                    count++;                    
-                }
-                if (this.calColorErr(sample, bottomColor) < 100)
-                {
-                    count++;
-                }
-                if (count > 1) {
-                    bottomColor = sample;
-                    break;
+            int maxColorCount = 0;
+            int maxColorIndex = 0;
+
+            for (int i = 0; i < 10; i++) {
+                int curCount = 0;
+                for (int j = 0; j < 10; j++) {
+                    if (i == j) {
+                        continue;
+                    }
+                    if (this.calColorErr(bottomColorArr[i], bottomColorArr[j]) < 50) {
+                        curCount++;
+                    }
+                }                
+                if (curCount > maxColorCount) {
+                    maxColorIndex = i;
+                    maxColorCount = curCount;
                 }
             }
+
+           
+            Color topCorlor = lockbmp.GetPixel(3, 1);
+            Color bottomColor = bottomColorArr[maxColorIndex];
 
             int bgError = this.calColorErr(topCorlor, bottomColor);
             int[,] cache = new int[lockbmp.Width, lockbmp.Height];
@@ -138,40 +139,54 @@ namespace MyJumpHelper
 
             int figureX = 0;
             int figureY = 0;
-            
+            int figureWidth = (int)(lockbmp.Width * 90 / 1080);
+            int figureHeight = (int)(lockbmp.Width * 250 / 1080);
+
+            for (int j = (int)(lockbmp.Height * 0.7); j > (int)(lockbmp.Height * 0.25); j--)
+            {
+                for (int i = (int)(lockbmp.Width - 1); i > 0 ; i--)
+                {
+                    curColor = lockbmp.GetPixel(i, j);
+                    if (this.calColorErr(curColor, figureColor) < 6)
+                        {
+                            isFigureFound = true;
+                            figureX = i;
+                            figureY = j - (int)(lockbmp.Width * 18 / 1080);
+                            break;
+                        }
+                    
+                }
+                if (isFigureFound) {
+                    break;
+                }
+            }
+
+           
 
             for (int j = (int)(lockbmp.Height * 0.25); j < (int)(lockbmp.Height * 0.7); j++)
             {
                 for (int i = (int)(1); i < (int)(lockbmp.Width - 1); i++)
                 {
                     curColor = lockbmp.GetPixel(i, j);
-                    if (this.isBgColor(topCorlor, bottomColor, curColor, bgError))
+                    if (i >= (figureX - figureWidth / 2) && i <= (figureX + figureWidth / 2) && j >= figureY - figureHeight && j <= figureY)
+                    {
+                        cache[i, j] = 1;
+                    }
+                    else if (this.isBgColor(topCorlor, bottomColor, curColor, bgError))
                     {
                         // lockbmp.SetPixel(i,j,Color.FromArgb(255, 0, 0));
                         cache[i, j] = 1;
-                    }
+                    }                   
                     else if (!isTargetFound)
-                    {
-                        if (this.calColorErr(curColor, figureHeadColor) < 1200) {
-                            continue;
-                        }
-
-                        if (cache[i - 1, j] == 1 || cache[i, j - 1] == 1 || cache[i - 1, j - 1] == 1)
+                    {                        
+                       if (cache[i - 1, j] == 1 || cache[i, j - 1] == 1 || cache[i - 1, j - 1] == 1)
                         {
                             isTargetFound = true;
                             targetStartX = i;
                             targetStartY = j;
                         }
                         
-                    }
-                    else if (!isFigureFound)
-                    {
-                        if (this.calColorErr(curColor, figureColor) < 8) {
-                            isFigureFound = true;
-                            figureX = i + 15;
-                            figureY = j;
-                        }
-                    }
+                    }                    
                 }
             }
             
@@ -208,8 +223,8 @@ namespace MyJumpHelper
             midX = (int)(midX - length * Math.Cos(angleOfLine));
             midY = (int)(midY + length * Math.Sin(angleOfLine));
            
-            for (int i = -10; i < 11; i++) {
-                for (int j = -10; j < 11; j++) {
+            for (int i = -15; i < 16; i++) {
+                for (int j = -15; j < 16; j++) {
                     lockbmp.SetPixel(midX + i, midY + j, Color.FromArgb(0, 255, 0));
                     lockbmp.SetPixel(figureX + i, figureY + j, Color.FromArgb(255, 0, 0));
                 }
@@ -221,7 +236,7 @@ namespace MyJumpHelper
            
             this.pictureBox1.Image = (System.Drawing.Image)bmp;
            
-           string[] cmd = { "shell input swipe 300 800 300 800 " + (int) (distance * 1490) };
+           string[] cmd = { "shell input swipe 300 800 300 800 " + (int) (distance * 1480) };
            this.sendADBCmd(cmd);
           
         }
