@@ -17,7 +17,7 @@ namespace MyJumpHelper
 {
     public partial class JumpHelper : Form
     {   
-        private string adbPath = "C:\\Users\\Nihiue\\Desktop\\platform-tools-latest-windows\\platform-tools\\adb.exe";
+        private string adbPath = "adb.exe";
         private System.Timers.Timer jpTimer  = new System.Timers.Timer();
         public JumpHelper()
         {
