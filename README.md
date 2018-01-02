@@ -40,7 +40,7 @@
 
 ## 截图
 
-![run](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/run.png)
+![run](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/run_new.png)
 
 
 
