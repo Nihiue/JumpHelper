@@ -17,24 +17,30 @@
 
 ## 步骤
 
-1. 编译或者下载已编译版本 [下载地址](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/JumpHelper.exe)
+1. 编译或者下载已编译版本 [下载地址](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/MyJumpHelper.exe)
 2. [下载 ADB](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/platform-tools-latest-windows.zip)，并解压
 3. 打开手机的 Debug 调试功能，并使用 USB 连接电脑
 4. 运行程序, 点击 选择ADB 中选择步骤2解压出的 adb.exe
 5. 在手机端打开【跳一跳】，点击辅助工具开始
 
-## 有问题
-### 不显示截图，或者不能自动跳
+## 参数设置
 
+### 距离参数
+如果出现跳跃过近或过远可调整此参数。 1080P 屏幕下默认值为1480
+
+### 跳跃时间间隔
+默认 5000， 单位ms
+
+
+## 异常问题
+
+### 不显示截图，或者不能自动跳
 可能是手机未连接到电脑，或者未打开 USB 调试，或者是未开启截图和模拟触控权限
 
 
 ## 截图
 
 ![run](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/run.png)
-
-![game](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/game.jpg)
-
 
 
 

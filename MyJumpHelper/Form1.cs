@@ -16,9 +16,12 @@ using System.Threading;
 namespace MyJumpHelper
 {
     public partial class JumpHelper : Form
-    {   
+    {
         private string adbPath = "adb.exe";
-        private System.Timers.Timer jpTimer  = new System.Timers.Timer();
+        private System.Timers.Timer jpTimer = new System.Timers.Timer();
+        private int jumpInterval = 5000;
+        private int convetRatio = 1480;
+
         public JumpHelper()
         {
             InitializeComponent();
@@ -27,26 +30,28 @@ namespace MyJumpHelper
         private void Form1_Load(object sender, EventArgs e)
         {
             this.jpTimer.Elapsed += new ElapsedEventHandler(timeTrigger);
-            this.jpTimer.Interval = 5000;
+            this.jpTimer.Interval = this.jumpInterval;
             this.jpTimer.AutoReset = true;//执行一次 false，一直执行true  
 
         }
-     
 
-        private void forward() {              
-            this.getScreenshot();           
+
+        private void forward()
+        {
+            this.getScreenshot();
             this.processScreenshot();
         }
 
-        private void timeTrigger(object source, ElapsedEventArgs e) {
+        private void timeTrigger(object source, ElapsedEventArgs e)
+        {
             this.forward();
         }
         private void start_Click(object sender, EventArgs e)
         {
-           // MessageBox.Show("a" + Math.Sin(Math.Atan(-1)));
-            if (!this.test_ADB()) {
+            if (!this.test_ADB())
+            {
                 return;
-            }            
+            }
             this.jpTimer.Enabled = true;
             this.stop.Enabled = true;
             this.start.Enabled = false;
@@ -55,20 +60,23 @@ namespace MyJumpHelper
         }
 
         private void stop_Click(object sender, EventArgs e)
-        {            
+        {
             this.jpTimer.Enabled = false;
             this.stop.Enabled = false;
             this.start.Enabled = true;
         }
 
 
-        private void getScreenshot() {
+        private void getScreenshot()
+        {
             string[] cmds = { "shell /system/bin/screencap -p /sdcard/screenshot_jp.png", "pull /sdcard/screenshot_jp.png" };
             this.sendADBCmd(cmds);
         }
 
-        private bool isBgColor(Color c1, Color c2, Color d, int bgError) { 
-            if ((d.R - c1.R) * (c2.R - c1.R) < 0 || (d.R - c2.R) * (c1.R - c2.R) < 0) {
+        private bool isBgColor(Color c1, Color c2, Color d, int bgError)
+        {
+            if ((d.R - c1.R) * (c2.R - c1.R) < 0 || (d.R - c2.R) * (c1.R - c2.R) < 0)
+            {
                 return false;
             }
             if ((d.G - c1.G) * (c2.G - c1.G) < 0 || (d.G - c2.G) * (c1.G - c2.G) < 0)
@@ -81,10 +89,12 @@ namespace MyJumpHelper
             }
             return this.calColorErr(d, c1) <= bgError;
         }
-        private int calColorErr(Color c1, Color c2) {
+        private int calColorErr(Color c1, Color c2)
+        {
             return (c1.R - c2.R) * (c1.R - c2.R) + (c1.G - c2.G) * (c1.G - c2.G) + (c1.B - c2.B) * (c1.B - c2.B);
         }
-        private void processScreenshot() {
+        private void processScreenshot()
+        {
             System.Drawing.Image img = System.Drawing.Image.FromFile("screenshot_jp.png");
             // System.Drawing.Image bmp = new System.Drawing.Bitmap(img);
             Bitmap bmp = new System.Drawing.Bitmap(img);
@@ -93,35 +103,41 @@ namespace MyJumpHelper
 
             Color curColor;
             lockbmp.LockBits();
-            
-           
+
+
             // find bottom background color
             Color[] bottomColorArr = new Color[10];
 
-            for (int i = 0; i < 10; i++) {
-                bottomColorArr[i] = lockbmp.GetPixel((int)(lockbmp.Width * i * 0.1), lockbmp.Height - 1);               
+            for (int i = 0; i < 10; i++)
+            {
+                bottomColorArr[i] = lockbmp.GetPixel((int)(lockbmp.Width * i * 0.1), lockbmp.Height - 1);
             }
 
             int maxColorCount = 0;
             int maxColorIndex = 0;
 
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 10; i++)
+            {
                 int curCount = 0;
-                for (int j = 0; j < 10; j++) {
-                    if (i == j) {
+                for (int j = 0; j < 10; j++)
+                {
+                    if (i == j)
+                    {
                         continue;
                     }
-                    if (this.calColorErr(bottomColorArr[i], bottomColorArr[j]) < 50) {
+                    if (this.calColorErr(bottomColorArr[i], bottomColorArr[j]) < 50)
+                    {
                         curCount++;
                     }
-                }                
-                if (curCount > maxColorCount) {
+                }
+                if (curCount > maxColorCount)
+                {
                     maxColorIndex = i;
                     maxColorCount = curCount;
                 }
             }
 
-           
+
             Color topCorlor = lockbmp.GetPixel(3, 1);
             Color bottomColor = bottomColorArr[maxColorIndex];
 
@@ -144,24 +160,25 @@ namespace MyJumpHelper
 
             for (int j = (int)(lockbmp.Height * 0.7); j > (int)(lockbmp.Height * 0.25); j--)
             {
-                for (int i = (int)(lockbmp.Width - 1); i > 0 ; i--)
+                for (int i = (int)(lockbmp.Width - 1); i > 0; i--)
                 {
                     curColor = lockbmp.GetPixel(i, j);
                     if (this.calColorErr(curColor, figureColor) < 6)
-                        {
-                            isFigureFound = true;
-                            figureX = i;
-                            figureY = j - (int)(lockbmp.Width * 18 / 1080);
-                            break;
-                        }
-                    
+                    {
+                        isFigureFound = true;
+                        figureX = i;
+                        figureY = j - (int)(lockbmp.Width * 18 / 1080);
+                        break;
+                    }
+
                 }
-                if (isFigureFound) {
+                if (isFigureFound)
+                {
                     break;
                 }
             }
 
-           
+
 
             for (int j = (int)(lockbmp.Height * 0.25); j < (int)(lockbmp.Height * 0.7); j++)
             {
@@ -176,39 +193,44 @@ namespace MyJumpHelper
                     {
                         // lockbmp.SetPixel(i,j,Color.FromArgb(255, 0, 0));
                         cache[i, j] = 1;
-                    }                   
+                    }
                     else if (!isTargetFound)
-                    {                        
-                       if (cache[i - 1, j] == 1 || cache[i, j - 1] == 1 || cache[i - 1, j - 1] == 1)
+                    {
+                        if (cache[i - 1, j] == 1 || cache[i, j - 1] == 1 || cache[i - 1, j - 1] == 1)
                         {
                             isTargetFound = true;
                             targetStartX = i;
                             targetStartY = j;
                         }
-                        
-                    }                    
+
+                    }
                 }
             }
-            
-            if (!isFigureFound || !isTargetFound) {
+
+            if (!isFigureFound || !isTargetFound)
+            {
                 lockbmp.UnlockBits();
                 this.pictureBox1.Image = (System.Drawing.Image)bmp;
                 return;
             }
-            
+
             int curX = targetStartX;
             int curY = targetStartY;
 
-            while (true) {
+            while (true)
+            {
                 curX = curX + 1;
                 int newY = -1;
-                for (int y = -4; y < 5; y++) {
-                    if (cache[curX, curY + y] != 1 && cache[curX, curY + y - 1] == 1) {
-                        newY = curY + y;                       
+                for (int y = -4; y < 5; y++)
+                {
+                    if (cache[curX, curY + y] != 1 && cache[curX, curY + y - 1] == 1)
+                    {
+                        newY = curY + y;
                         break;
                     }
                 }
-                if (newY == -1) {
+                if (newY == -1)
+                {
                     break;
                 }
                 curY = newY;
@@ -222,27 +244,32 @@ namespace MyJumpHelper
             double length = Math.Sqrt((curX - targetStartX) * (curX - targetStartX) + (curY - targetStartY) * (curY - targetStartY)) / 2;
             midX = (int)(midX - length * Math.Cos(angleOfLine));
             midY = (int)(midY + length * Math.Sin(angleOfLine));
-           
-            for (int i = -15; i < 16; i++) {
-                for (int j = -15; j < 16; j++) {
+
+            for (int i = -15; i < 16; i++)
+            {
+                for (int j = -15; j < 16; j++)
+                {
                     lockbmp.SetPixel(midX + i, midY + j, Color.FromArgb(0, 255, 0));
                     lockbmp.SetPixel(figureX + i, figureY + j, Color.FromArgb(255, 0, 0));
                 }
             }
-         
+
             lockbmp.UnlockBits();
-           
-            double distance = Math.Sqrt((midX - figureX) * (midX - figureX) + (midY - figureY) * (midY - figureY)) / lockbmp.Width;
-           
+
+            double distance = Math.Sqrt((midX - figureX) * (midX - figureX) + (midY - figureY) * (midY - figureY));
+
+            int duration = (int)((distance * this.convetRatio) / lockbmp.Width);
+
+
             this.pictureBox1.Image = (System.Drawing.Image)bmp;
-           
-           string[] cmd = { "shell input swipe 300 800 300 800 " + (int) (distance * 1480) };
-           this.sendADBCmd(cmd);
-          
+
+            string[] cmd = { "shell input swipe 300 800 300 800 " + duration };
+            this.sendADBCmd(cmd);
+
         }
 
         private string sendADBCmd(string[] cmdlines)
-        {            
+        {
             try
             {
                 using (Process myPro = new Process())
@@ -257,12 +284,13 @@ namespace MyJumpHelper
                     myPro.StandardInput.AutoFlush = true;
 
                     string cmdstr = "";
-                    for (int i = 0; i < cmdlines.Length; i++) {
-                        cmdstr += (string.Format(@"""{0}"" {1}", this.adbPath, cmdlines[i])+"&");
+                    for (int i = 0; i < cmdlines.Length; i++)
+                    {
+                        cmdstr += (string.Format(@"""{0}"" {1}", this.adbPath, cmdlines[i]) + "&");
                     }
                     cmdstr += "exit";
-                    myPro.StandardInput.WriteLine(cmdstr);                  
-                    myPro.WaitForExit();                    
+                    myPro.StandardInput.WriteLine(cmdstr);
+                    myPro.WaitForExit();
                     return myPro.StandardOutput.ReadToEnd();
                 }
             }
@@ -270,7 +298,7 @@ namespace MyJumpHelper
             {
                 return "";
             }
-            
+
         }
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -290,7 +318,7 @@ namespace MyJumpHelper
             dialog.Filter = "ADB file|adb.exe";
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                this.adbPath = dialog.FileName;                
+                this.adbPath = dialog.FileName;
             }
         }
 
@@ -300,7 +328,7 @@ namespace MyJumpHelper
         }
 
         private bool test_ADB()
-        {            
+        {
             try
             {
                 using (Process myPro = new Process())
@@ -315,20 +343,24 @@ namespace MyJumpHelper
                     string str = string.Format(@"""{0}"" {1} {2}", this.adbPath, "devices", "&exit");
 
                     myPro.StandardInput.WriteLine(str);
-                    myPro.StandardInput.AutoFlush = true;                    
+                    myPro.StandardInput.AutoFlush = true;
                     myPro.WaitForExit();
                     string output = myPro.StandardOutput.ReadToEnd();
-                    
-                    if (!output.Contains("List of devices attached")) {
+
+                    if (!output.Contains("List of devices attached"))
+                    {
                         MessageBox.Show("未找到ADB ，请手动选择");
                         return false;
                     }
 
                     bool result = false;
                     output = output.Substring(output.LastIndexOf("List of devices attached") + 24);
-                    if (output.Contains("device")) {
+                    if (output.Contains("device"))
+                    {
                         result = true;
-                    } else if (output.Contains("unauthorized")) {
+                    }
+                    else if (output.Contains("unauthorized"))
+                    {
                         MessageBox.Show("ADB: 设备未授权，请点击接受调试\n" + output);
                     }
                     else
@@ -355,5 +387,47 @@ namespace MyJumpHelper
         {
 
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                double value = double.Parse(this.textBox1.Text);
+                if (value >= 500 && value <= 5000)
+                {
+                    this.convetRatio = (int)value;
+                }
+                else
+                {
+                    MessageBox.Show("有效范围 500 - 5000");
+                }
+            }
+            catch
+            {
+                MessageBox.Show("请输入一个数字");
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                double value = double.Parse(this.textBox2.Text);
+                if (value >= 3000 && value <= 10000)
+                {
+                    this.jumpInterval = (int)value;
+                    this.jpTimer.Interval = this.jumpInterval;
+                }
+                else
+                {
+                    MessageBox.Show("有效范围 3000 - 10000");
+                }
+            }
+            catch
+            {
+                MessageBox.Show("请输入一个数字");
+            }
+        }
     }
-}
+      
+    }
