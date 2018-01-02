@@ -17,7 +17,7 @@
 
 ## 步骤
 
-1. 编译或者下载已编译版本 [下载地址](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/MyJumpHelperNew.exe)
+1. 编译或者下载已编译版本 [下载地址](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/MyJumpHelper.exe)
 2. [下载 ADB](https://raw.githubusercontent.com/Nihiue/JumpHelper/master/static/platform-tools-latest-windows.zip)，并解压
 3. 打开手机的 Debug 调试功能，并使用 USB 连接电脑
 4. 运行程序, 点击 选择ADB 中选择步骤2解压出的 adb.exe
@@ -25,7 +25,7 @@
 
 ## 参数设置
 
-### 距离参数
+### 跳跃距离系数
 如果出现跳跃过近或过远可调整此参数。 1080P 屏幕下默认值为1480
 
 ### 跳跃时间间隔

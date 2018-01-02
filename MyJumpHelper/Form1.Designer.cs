@@ -120,7 +120,8 @@
             this.groupBox1.Size = new System.Drawing.Size(151, 115);
             this.groupBox1.TabIndex = 16;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "距离参数";
+            this.groupBox1.Text = "跳跃距离系数";
+            this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
             // button1
             // 

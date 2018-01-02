@@ -20,7 +20,7 @@ namespace MyJumpHelper
         private string adbPath = "adb.exe";
         private System.Timers.Timer jpTimer = new System.Timers.Timer();
         private int jumpInterval = 5000;
-        private int convetRatio = 1480;
+        private int convertRatio = 1480;
 
         public JumpHelper()
         {
@@ -221,7 +221,7 @@ namespace MyJumpHelper
             {
                 curX = curX + 1;
                 int newY = -1;
-                for (int y = -4; y < 5; y++)
+                for (int y = -8; y < 9; y++)
                 {
                     if (cache[curX, curY + y] != 1 && cache[curX, curY + y - 1] == 1)
                     {
@@ -258,7 +258,7 @@ namespace MyJumpHelper
 
             double distance = Math.Sqrt((midX - figureX) * (midX - figureX) + (midY - figureY) * (midY - figureY));
 
-            int duration = (int)((distance * this.convetRatio) / lockbmp.Width);
+            int duration = (int)((distance * this.convertRatio) / lockbmp.Width);
 
 
             this.pictureBox1.Image = (System.Drawing.Image)bmp;
@@ -395,7 +395,7 @@ namespace MyJumpHelper
                 double value = double.Parse(this.textBox1.Text);
                 if (value >= 500 && value <= 5000)
                 {
-                    this.convetRatio = (int)value;
+                    this.convertRatio = (int)value;
                 }
                 else
                 {
@@ -427,6 +427,11 @@ namespace MyJumpHelper
             {
                 MessageBox.Show("请输入一个数字");
             }
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
         }
     }
       
