@@ -31,7 +31,7 @@ namespace MyJumpHelper
         {
             this.jpTimer.Elapsed += new ElapsedEventHandler(timeTrigger);
             this.jpTimer.Interval = this.jumpInterval;
-            this.jpTimer.AutoReset = true;//执行一次 false，一直执行true  
+            this.jpTimer.AutoReset = true;
 
         }
 
@@ -73,8 +73,43 @@ namespace MyJumpHelper
             this.sendADBCmd(cmds);
         }
 
-        private bool isBgColor(Color c1, Color c2, Color d, int bgError)
+        private int calColorErr(Color c1, Color c2)
         {
+            return (c1.R - c2.R) * (c1.R - c2.R) + (c1.G - c2.G) * (c1.G - c2.G) + (c1.B - c2.B) * (c1.B - c2.B);
+        }
+
+        private int[] findTargetEdge(int direction,int[,] cache, int []start, LockBitmap lockbmp) {
+            int[] ret = { 0, 0 };
+            int curX = start[0];
+            int curY = start[1];
+            while (true)
+            {
+                curX = curX + direction;
+                int newY = -1;
+                for (int y = 0; y < 3; y++)
+                {
+                    if (cache[curX, curY + y] != 1 && cache[curX, curY + y - 1] == 1)
+                    {
+                        newY = curY + y;                       
+                        //lockbmp.SetPixel(curX, newY, Color.FromArgb(0, 0, 255));
+                        //lockbmp.SetPixel(curX, newY + 1, Color.FromArgb(0, 0, 255));
+                        //lockbmp.SetPixel(curX, newY - 1, Color.FromArgb(0, 0, 255));                       
+                        break;
+                    }
+                }
+                if (newY == -1)
+                {
+                    break;
+                }
+                curY = newY;
+            }
+            ret[0] = curX;
+            ret[1] = curY;
+            return ret;
+        }
+        private bool isBgColor(Color c1, Color c2, Color d)
+        {
+            
             if ((d.R - c1.R) * (c2.R - c1.R) < 0 || (d.R - c2.R) * (c1.R - c2.R) < 0)
             {
                 return false;
@@ -87,11 +122,7 @@ namespace MyJumpHelper
             {
                 return false;
             }
-            return this.calColorErr(d, c1) <= bgError;
-        }
-        private int calColorErr(Color c1, Color c2)
-        {
-            return (c1.R - c2.R) * (c1.R - c2.R) + (c1.G - c2.G) * (c1.G - c2.G) + (c1.B - c2.B) * (c1.B - c2.B);
+            return true;
         }
         private void processScreenshot()
         {
@@ -100,74 +131,35 @@ namespace MyJumpHelper
             Bitmap bmp = new System.Drawing.Bitmap(img);
             LockBitmap lockbmp = new LockBitmap(bmp);
             img.Dispose();
-
-            Color curColor;
             lockbmp.LockBits();
 
-
-            // find bottom background color
-            Color[] bottomColorArr = new Color[10];
-
-            for (int i = 0; i < 10; i++)
-            {
-                bottomColorArr[i] = lockbmp.GetPixel((int)(lockbmp.Width * i * 0.1), lockbmp.Height - 1);
-            }
-
-            int maxColorCount = 0;
-            int maxColorIndex = 0;
-
-            for (int i = 0; i < 10; i++)
-            {
-                int curCount = 0;
-                for (int j = 0; j < 10; j++)
-                {
-                    if (i == j)
-                    {
-                        continue;
-                    }
-                    if (this.calColorErr(bottomColorArr[i], bottomColorArr[j]) < 50)
-                    {
-                        curCount++;
-                    }
-                }
-                if (curCount > maxColorCount)
-                {
-                    maxColorIndex = i;
-                    maxColorCount = curCount;
-                }
-            }
-
-
-            Color topCorlor = lockbmp.GetPixel(3, 1);
-            Color bottomColor = bottomColorArr[maxColorIndex];
-
-            int bgError = this.calColorErr(topCorlor, bottomColor);
+            Color curColor;
+            Color curBgColor;
+            Color curBgShadow;
+            Color figureColor = Color.FromArgb(54, 59, 99);            
+          
             int[,] cache = new int[lockbmp.Width, lockbmp.Height];
 
-            Color figureColor = Color.FromArgb(54, 59, 99);
-            Color figureHeadColor = Color.FromArgb(67, 58, 89);
-
+                      
             bool isTargetFound = false;
             bool isFigureFound = false;
 
-            int targetStartX = 0;
-            int targetStartY = 0;
-
-            int figureX = 0;
-            int figureY = 0;
-            int figureWidth = (int)(lockbmp.Width * 90 / 1080);
-            int figureHeight = (int)(lockbmp.Width * 250 / 1080);
+            int[] targetStart = { 0, 0 };
+            int[] figure = { 0, 0 };     
+            
+            int figureWidth = (int)(lockbmp.Width * 76 / 1080);
+            int figureHeight = (int)(lockbmp.Width * 210 / 1080);
 
             for (int j = (int)(lockbmp.Height * 0.7); j > (int)(lockbmp.Height * 0.25); j--)
             {
                 for (int i = (int)(lockbmp.Width - 1); i > 0; i--)
                 {
                     curColor = lockbmp.GetPixel(i, j);
-                    if (this.calColorErr(curColor, figureColor) < 6)
+                    if (this.calColorErr(curColor, figureColor) < 5)
                     {
                         isFigureFound = true;
-                        figureX = i;
-                        figureY = j - (int)(lockbmp.Width * 18 / 1080);
+                        figure[0] = i;
+                        figure[1] = j - (int)(lockbmp.Width * 18 / 1080);
                         break;
                     }
 
@@ -177,21 +169,23 @@ namespace MyJumpHelper
                     break;
                 }
             }
-
-
+            
 
             for (int j = (int)(lockbmp.Height * 0.25); j < (int)(lockbmp.Height * 0.7); j++)
             {
+                curBgColor = lockbmp.GetPixel(0, j);
+                curBgShadow = Color.FromArgb((int)(curBgColor.R * 0.69), (int)(curBgColor.G * 0.69), (int)(curBgColor.B * 0.69));
                 for (int i = (int)(1); i < (int)(lockbmp.Width - 1); i++)
                 {
                     curColor = lockbmp.GetPixel(i, j);
-                    if (i >= (figureX - figureWidth / 2) && i <= (figureX + figureWidth / 2) && j >= figureY - figureHeight && j <= figureY)
+                    if (i >= (figure[0] - figureWidth / 2) && i <= (figure[0] + figureWidth / 2) && j >= figure[1] - figureHeight && j <= figure[1])
                     {
                         cache[i, j] = 1;
                     }
-                    else if (this.isBgColor(topCorlor, bottomColor, curColor, bgError))
+                    else if (this.isBgColor(curBgColor, curBgShadow, curColor))
                     {
-                        // lockbmp.SetPixel(i,j,Color.FromArgb(255, 0, 0));
+                        // 需要识别背景色和阴影颜色
+                        //lockbmp.SetPixel(i,j,Color.FromArgb(255, 0, 0));
                         cache[i, j] = 1;
                     }
                     else if (!isTargetFound)
@@ -199,8 +193,8 @@ namespace MyJumpHelper
                         if (cache[i - 1, j] == 1 || cache[i, j - 1] == 1 || cache[i - 1, j - 1] == 1)
                         {
                             isTargetFound = true;
-                            targetStartX = i;
-                            targetStartY = j;
+                            targetStart[0] = i;
+                            targetStart[1] = j;
                         }
 
                     }
@@ -214,53 +208,28 @@ namespace MyJumpHelper
                 return;
             }
 
-            int curX = targetStartX;
-            int curY = targetStartY;
+            int[] targetLeft = this.findTargetEdge(1, cache, targetStart, lockbmp);
+            int[] targetRight = this.findTargetEdge(-1, cache, targetStart, lockbmp);
 
-            while (true)
-            {
-                curX = curX + 1;
-                int newY = -1;
-                for (int y = -8; y < 9; y++)
-                {
-                    if (cache[curX, curY + y] != 1 && cache[curX, curY + y - 1] == 1)
-                    {
-                        newY = curY + y;
-                        break;
-                    }
-                }
-                if (newY == -1)
-                {
-                    break;
-                }
-                curY = newY;
-            }
+            int[] targetMid = { 0, 0 };
 
-
-            int midX = (curX + targetStartX) / 2;
-            int midY = (curY + targetStartY) / 2;
-
-            double angleOfLine = Math.Atan((double)(curY - targetStartY) / (curX - targetStartX));
-            double length = Math.Sqrt((curX - targetStartX) * (curX - targetStartX) + (curY - targetStartY) * (curY - targetStartY)) / 2;
-            midX = (int)(midX - length * Math.Cos(angleOfLine));
-            midY = (int)(midY + length * Math.Sin(angleOfLine));
-
+            targetMid[0] = (int)((targetLeft[0] + targetRight[0]) / 2);
+            targetMid[1] = (int)((targetLeft[1] + targetRight[1]) / 2);
+            
             for (int i = -15; i < 16; i++)
             {
                 for (int j = -15; j < 16; j++)
                 {
-                    lockbmp.SetPixel(midX + i, midY + j, Color.FromArgb(0, 255, 0));
-                    lockbmp.SetPixel(figureX + i, figureY + j, Color.FromArgb(255, 0, 0));
+                    lockbmp.SetPixel(targetMid[0] + i, targetMid[1] + j, Color.FromArgb(0, 255, 0));
+                    lockbmp.SetPixel(figure[0] + i, figure[1] + j, Color.FromArgb(255, 0, 0));
                 }
             }
 
-            lockbmp.UnlockBits();
-
-            double distance = Math.Sqrt((midX - figureX) * (midX - figureX) + (midY - figureY) * (midY - figureY));
+            double distance = Math.Sqrt((targetMid[0] - figure[0]) * (targetMid[0] - figure[0]) + (targetMid[1] - figure[1]) * (targetMid[1] - figure[1]));
 
             int duration = (int)((distance * this.convertRatio) / lockbmp.Width);
-
-
+           
+            lockbmp.UnlockBits();
             this.pictureBox1.Image = (System.Drawing.Image)bmp;
 
             string[] cmd = { "shell input swipe 300 800 300 800 " + duration };
@@ -313,7 +282,7 @@ namespace MyJumpHelper
         private void button2_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Multiselect = false;//该值确定是否可以选择多个文件
+            dialog.Multiselect = false;
             dialog.Title = "Choose ADB";
             dialog.Filter = "ADB file|adb.exe";
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
