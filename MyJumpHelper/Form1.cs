@@ -55,8 +55,7 @@ namespace MyJumpHelper
             this.jpTimer.Enabled = true;
             this.stop.Enabled = true;
             this.start.Enabled = false;
-            this.forward();
-            //this.processScreenshot();
+            this.forward();            
         }
 
         private void stop_Click(object sender, EventArgs e)
@@ -86,7 +85,7 @@ namespace MyJumpHelper
             {
                 curX = curX + direction;
                 int newY = -1;
-                for (int y = 0; y < 3; y++)
+                for (int y = 0; y < 9; y++)
                 {
                     if (cache[curX, curY + y] != 1 && cache[curX, curY + y - 1] == 1)
                     {
@@ -127,7 +126,7 @@ namespace MyJumpHelper
         private void processScreenshot()
         {
             System.Drawing.Image img = System.Drawing.Image.FromFile("screenshot_jp.png");
-            // System.Drawing.Image bmp = new System.Drawing.Bitmap(img);
+            
             Bitmap bmp = new System.Drawing.Bitmap(img);
             LockBitmap lockbmp = new LockBitmap(bmp);
             img.Dispose();
@@ -208,8 +207,8 @@ namespace MyJumpHelper
                 return;
             }
 
-            int[] targetLeft = this.findTargetEdge(1, cache, targetStart, lockbmp);
-            int[] targetRight = this.findTargetEdge(-1, cache, targetStart, lockbmp);
+            int[] targetLeft = this.findTargetEdge(-1, cache, targetStart, lockbmp);
+            int[] targetRight = this.findTargetEdge(1, cache, targetStart, lockbmp);
 
             int[] targetMid = { 0, 0 };
 
