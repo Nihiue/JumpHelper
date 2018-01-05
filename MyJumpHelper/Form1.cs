@@ -97,7 +97,7 @@ namespace MyJumpHelper
                 int newY = -1;
                 for (int y = 0; y < 7; y++)
                 {
-                    if (cache[curX, curY + y] != 1 && cache[curX, curY + y - 1] == 1)
+                    if (cache[curX, curY + y - 1] == 1 && cache[curX, curY + y ] != 1 && cache[curX, curY + y + 1] != 1 && cache[curX, curY + y + 2] != 1 && cache[curX, curY + y + 3] != 1 && cache[curX, curY + y + 4] != 1)
                     {
                         newY = curY + y;                       
                         //lockbmp.SetPixel(curX, newY, Color.FromArgb(0, 0, 255));
@@ -116,22 +116,16 @@ namespace MyJumpHelper
             ret[1] = curY;
             return ret;
         }
-        private bool isBgColor(Color c1, Color c2, Color d)
-        {
-            
-            if ((d.R - c1.R) * (c2.R - c1.R) < 0 || (d.R - c2.R) * (c1.R - c2.R) < -16)
-            {
-                return false;
-            }
-            if ((d.G - c1.G) * (c2.G - c1.G) < 0 || (d.G - c2.G) * (c1.G - c2.G) < -16)
-            {
-                return false;
-            }
-            if ((d.B - c1.B) * (c2.B - c1.B) < 0 || (d.B - c2.B) * (c1.B - c2.B) < -16)
-            {
-                return false;
-            }
-            return true;
+        private bool isBgColor(Color bg, Color bgS, Color d)
+        {           
+            /*
+            int bgError = 0;
+
+            bgError += (Math.Abs(c1.R - d.R) + Math.Abs(c2.R - d.R) - Math.Abs(c1.R - c2.R));
+            bgError += (Math.Abs(c1.G - d.G) + Math.Abs(c2.G - d.G) - Math.Abs(c1.G - c2.G));
+            bgError += (Math.Abs(c1.B - d.B) + Math.Abs(c2.B - d.B) - Math.Abs(c1.B - c2.B));
+            */
+            return this.calColorErr(bg, d) < 48 || this.calColorErr(bgS, d) < 300;
         }
         private void processScreenshot()
         {
@@ -193,10 +187,10 @@ namespace MyJumpHelper
             }
             
 
-            for (int j = (int)(lockbmp.Height * 0.25); j < (int)(lockbmp.Height * 0.7); j++)
+            for (int j = (int)(lockbmp.Height * 0.25); j < figure[1]; j++)
             {
                 curBgColor = lockbmp.GetPixel(0, j);
-                curBgShadow = Color.FromArgb((int)(curBgColor.R * 0.68), (int)(curBgColor.G * 0.68), (int)(curBgColor.B * 0.68));
+                curBgShadow = Color.FromArgb((int)(curBgColor.R * 0.7), (int)(curBgColor.G * 0.7), (int)(curBgColor.B * 0.7));
                 for (int i = 1; i < (int)(lockbmp.Width - 1); i++)
                 {
                     curColor = lockbmp.GetPixel(i, j);
@@ -208,13 +202,13 @@ namespace MyJumpHelper
                     else if (this.isBgColor(curBgColor, curBgShadow, curColor))
                     {
                         // 需要识别背景色和阴影颜色
-                        //lockbmp.SetPixel(i,j,Color.FromArgb(255, 0, 0));
+                        // lockbmp.SetPixel(i,j,Color.FromArgb(255, 0, 0));
                         cache[i, j] = 1;
                     }                   
                 }
             }
 
-            for (int j = (int)(lockbmp.Height * 0.25); j < (int)(lockbmp.Height * 0.7); j++)
+            for (int j = (int)(lockbmp.Height * 0.25); j < figure[1]; j++)
             { 
                 for (int i = 1; i < (int)(lockbmp.Width - 1); i++)
                 {                   
@@ -374,13 +368,13 @@ namespace MyJumpHelper
             try
             {
                 double value = double.Parse(this.textBox1.Text);
-                if (value >= 500 && value <= 5000)
+                if (value >= 1000 && value <= 5000)
                 {
                     this.convertRatio = (int)value;
                 }
                 else
                 {
-                    MessageBox.Show("有效范围 500 - 5000");
+                    MessageBox.Show("有效范围 1000 - 5000");
                 }
             }
             catch
@@ -394,13 +388,13 @@ namespace MyJumpHelper
             try
             {
                 double value = double.Parse(this.textBox2.Text);
-                if (value >= 3000 && value <= 10000)
+                if (value >= 2000 && value <= 10000)
                 {
                     this.jumpInterval = (int)value;                    
                 }
                 else
                 {
-                    MessageBox.Show("有效范围 3000 - 10000");
+                    MessageBox.Show("有效范围 2000 - 10000");
                 }
             }
             catch
