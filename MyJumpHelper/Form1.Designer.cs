@@ -168,7 +168,8 @@
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(118, 21);
             this.textBox2.TabIndex = 0;
-            this.textBox2.Text = "5000";
+            this.textBox2.Text = "3000";
+            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // JumpHelper
             // 

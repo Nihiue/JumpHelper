@@ -18,9 +18,9 @@ namespace MyJumpHelper
     public partial class JumpHelper : Form
     {
         private string adbPath = "adb.exe";
-        private System.Timers.Timer jpTimer = new System.Timers.Timer();
-        private int jumpInterval = 5000;
-        private int convertRatio = 1480;
+        private bool isRunning = false;
+        private int jumpInterval = 3000;
+        private int convertRatio = 1480;       
 
         public JumpHelper()
         {
@@ -29,23 +29,29 @@ namespace MyJumpHelper
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.jpTimer.Elapsed += new ElapsedEventHandler(timeTrigger);
-            this.jpTimer.Interval = this.jumpInterval;
-            this.jpTimer.AutoReset = true;
-
+            Thread thread = new Thread(new ThreadStart(loopThread));
+            thread.IsBackground = true;
+            thread.Start();
         }
 
 
-        private void forward()
+        private void loopThread()
         {
-            this.getScreenshot();
-            this.processScreenshot();
+            while(true) {
+                if (this.isRunning)
+                {
+                    this.getScreenshot();                    
+                    Thread.Sleep(500);                    
+                    this.processScreenshot();
+                    Thread.Sleep(this.jumpInterval - 500);
+                }
+                else {
+                    Thread.Sleep(1000);
+                }              
+                
+            }
         }
 
-        private void timeTrigger(object source, ElapsedEventArgs e)
-        {
-            this.forward();
-        }
         private void start_Click(object sender, EventArgs e)
         {
             this.startAutoJump();
@@ -57,7 +63,7 @@ namespace MyJumpHelper
         }
 
         private void stopAutoJump() {
-            this.jpTimer.Enabled = false;
+            this.isRunning = false;
             this.stop.Enabled = false;
             this.start.Enabled = true;
         }
@@ -66,10 +72,9 @@ namespace MyJumpHelper
             {
                 return;
             }
-            this.jpTimer.Enabled = true;
+            this.isRunning = true;
             this.stop.Enabled = true;
-            this.start.Enabled = false;
-            this.forward();
+            this.start.Enabled = false;            
         }
 
         private void getScreenshot()
@@ -316,53 +321,32 @@ namespace MyJumpHelper
 
         private bool test_ADB()
         {
-            try
+            string[] cmd = { "devices" };
+            string output = this.sendADBCmd(cmd);
+
+            bool isADBOK = output.Contains("List of devices attached");           
+           
+            if (isADBOK)
             {
-                using (Process myPro = new Process())
+                output = output.Substring(output.LastIndexOf("List of devices attached") + 24);
+                if (output.Contains("device"))
                 {
-                    myPro.StartInfo.FileName = "cmd.exe";
-                    myPro.StartInfo.UseShellExecute = false;
-                    myPro.StartInfo.RedirectStandardInput = true;
-                    myPro.StartInfo.RedirectStandardOutput = true;
-                    myPro.StartInfo.RedirectStandardError = true;
-                    myPro.StartInfo.CreateNoWindow = true;
-                    myPro.Start();
-                    string str = string.Format(@"""{0}"" {1} {2}", this.adbPath, "devices", "&exit");
-
-                    myPro.StandardInput.WriteLine(str);
-                    myPro.StandardInput.AutoFlush = true;
-                    myPro.WaitForExit();
-                    string output = myPro.StandardOutput.ReadToEnd();
-
-                    if (!output.Contains("List of devices attached"))
-                    {
-                        MessageBox.Show("未找到ADB ，请手动选择");
-                        return false;
-                    }
-
-                    bool result = false;
-                    output = output.Substring(output.LastIndexOf("List of devices attached") + 24);
-                    if (output.Contains("device"))
-                    {
-                        result = true;
-                    }
-                    else if (output.Contains("unauthorized"))
-                    {
-                        MessageBox.Show("ADB: 设备未授权，请点击接受调试\n" + output);
-                    }
-                    else
-                    {
-                        MessageBox.Show("ADB: 未连接到设备\n" + output);
-                    }
-
-                    return result;
+                    return true;
                 }
+                else if (output.Contains("unauthorized"))
+                {
+                    MessageBox.Show("ADB: 设备未授权，请点击接受调试\n" + output);
+                }
+                else
+                {
+                    MessageBox.Show("ADB: 未连接到设备\n" + output);
+                }                
             }
-            catch
+            else
             {
-                MessageBox.Show("未知 ADB 错误");
-                return false;
+                MessageBox.Show("未找到 ADB 路径,请手动选择");
             }
+            return false;
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
@@ -402,8 +386,7 @@ namespace MyJumpHelper
                 double value = double.Parse(this.textBox2.Text);
                 if (value >= 3000 && value <= 10000)
                 {
-                    this.jumpInterval = (int)value;
-                    this.jpTimer.Interval = this.jumpInterval;
+                    this.jumpInterval = (int)value;                    
                 }
                 else
                 {
@@ -417,6 +400,11 @@ namespace MyJumpHelper
         }
 
         private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
         {
 
         }
