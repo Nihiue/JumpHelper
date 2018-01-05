@@ -39,11 +39,15 @@ namespace MyJumpHelper
         {
             while(true) {
                 if (this.isRunning)
-                {
-                    this.getScreenshot();                    
-                    Thread.Sleep(500);                    
+                {                    
+                    string[] cmd1 = { "shell /system/bin/screencap -p /sdcard/screenshot_jp.png"};
+                    string[] cmd2 = { "pull /sdcard/screenshot_jp.png" };
+                    this.sendADBCmd(cmd1);
+                    Thread.Sleep(300);
+                    this.sendADBCmd(cmd2);
+                    Thread.Sleep(500);
                     this.processScreenshot();
-                    Thread.Sleep(this.jumpInterval - 500);
+                    Thread.Sleep(this.jumpInterval - 800);
                 }
                 else {
                     Thread.Sleep(1000);
@@ -77,19 +81,14 @@ namespace MyJumpHelper
             this.start.Enabled = false;            
         }
 
-        private void getScreenshot()
-        {
-            string[] cmds = { "shell /system/bin/screencap -p /sdcard/screenshot_jp.png", "pull /sdcard/screenshot_jp.png" };
-            this.sendADBCmd(cmds);
-        }
-
+       
         private int calColorErr(Color c1, Color c2)
         {
             return (c1.R - c2.R) * (c1.R - c2.R) + (c1.G - c2.G) * (c1.G - c2.G) + (c1.B - c2.B) * (c1.B - c2.B);
         }
 
-        private int[] findTargetEdge(int direction,int[,] cache, int []start, LockBitmap lockbmp) {
-            int[] ret = { 0, 0 };
+        private int[] findTargetEdge(int direction,int[,] cache, int []start, LockBitmap lockbmp) {            
+            int[] ret = { 0, 0 };            
             int curX = start[0];
             int curY = start[1];
             while (curX > 0 && curX < lockbmp.Width - 1)
@@ -120,15 +119,15 @@ namespace MyJumpHelper
         private bool isBgColor(Color c1, Color c2, Color d)
         {
             
-            if ((d.R - c1.R) * (c2.R - c1.R) < 0 || (d.R - c2.R) * (c1.R - c2.R) < 0)
+            if ((d.R - c1.R) * (c2.R - c1.R) < 0 || (d.R - c2.R) * (c1.R - c2.R) < -16)
             {
                 return false;
             }
-            if ((d.G - c1.G) * (c2.G - c1.G) < 0 || (d.G - c2.G) * (c1.G - c2.G) < 0)
+            if ((d.G - c1.G) * (c2.G - c1.G) < 0 || (d.G - c2.G) * (c1.G - c2.G) < -16)
             {
                 return false;
             }
-            if ((d.B - c1.B) * (c2.B - c1.B) < 0 || (d.B - c2.B) * (c1.B - c2.B) < 0)
+            if ((d.B - c1.B) * (c2.B - c1.B) < 0 || (d.B - c2.B) * (c1.B - c2.B) < -16)
             {
                 return false;
             }
@@ -197,12 +196,13 @@ namespace MyJumpHelper
             for (int j = (int)(lockbmp.Height * 0.25); j < (int)(lockbmp.Height * 0.7); j++)
             {
                 curBgColor = lockbmp.GetPixel(0, j);
-                curBgShadow = Color.FromArgb((int)(curBgColor.R * 0.69), (int)(curBgColor.G * 0.69), (int)(curBgColor.B * 0.69));
-                for (int i = (int)(1); i < (int)(lockbmp.Width - 1); i++)
+                curBgShadow = Color.FromArgb((int)(curBgColor.R * 0.68), (int)(curBgColor.G * 0.68), (int)(curBgColor.B * 0.68));
+                for (int i = 1; i < (int)(lockbmp.Width - 1); i++)
                 {
                     curColor = lockbmp.GetPixel(i, j);
                     if (i >= (figure[0] - figureWidth / 2) && i <= (figure[0] + figureWidth / 2) && j >= figure[1] - figureHeight && j <= figure[1])
                     {
+                        
                         cache[i, j] = 1;
                     }
                     else if (this.isBgColor(curBgColor, curBgShadow, curColor))
@@ -210,10 +210,19 @@ namespace MyJumpHelper
                         // 需要识别背景色和阴影颜色
                         //lockbmp.SetPixel(i,j,Color.FromArgb(255, 0, 0));
                         cache[i, j] = 1;
-                    }
-                    else if (!isTargetFound)
+                    }                   
+                }
+            }
+
+            for (int j = (int)(lockbmp.Height * 0.25); j < (int)(lockbmp.Height * 0.7); j++)
+            {
+                curBgColor = lockbmp.GetPixel(0, j);
+                curBgShadow = Color.FromArgb((int)(curBgColor.R * 0.65), (int)(curBgColor.G * 0.65), (int)(curBgColor.B * 0.65));
+                for (int i = 1; i < (int)(lockbmp.Width - 1); i++)
+                {                   
+                    if (cache [i, j] != 1)
                     {
-                        if (cache[i - 1, j] == 1 || cache[i, j - 1] == 1 || cache[i - 1, j - 1] == 1)
+                        if (cache[i, j + 1] != 1 && cache[i, j + 2] != 1 && cache[i, j + 3] != 1 && cache[i, j + 4] != 1)
                         {
                             isTargetFound = true;
                             targetStart[0] = i;
@@ -222,7 +231,12 @@ namespace MyJumpHelper
 
                     }
                 }
+                if (isTargetFound) {
+                    break;
+                }
             }
+
+           
 
             if (!isFigureFound || !isTargetFound)
             {
