@@ -215,19 +215,15 @@ namespace MyJumpHelper
             }
 
             for (int j = (int)(lockbmp.Height * 0.25); j < (int)(lockbmp.Height * 0.7); j++)
-            {
-                curBgColor = lockbmp.GetPixel(0, j);
-                curBgShadow = Color.FromArgb((int)(curBgColor.R * 0.65), (int)(curBgColor.G * 0.65), (int)(curBgColor.B * 0.65));
+            { 
                 for (int i = 1; i < (int)(lockbmp.Width - 1); i++)
                 {                   
-                    if (cache [i, j] != 1)
+                    if (cache[i, j] != 1 && cache[i, j + 1] != 1 && cache[i, j + 2] != 1 && cache[i, j + 3] != 1 && cache[i, j + 4] != 1)
                     {
-                        if (cache[i, j + 1] != 1 && cache[i, j + 2] != 1 && cache[i, j + 3] != 1 && cache[i, j + 4] != 1)
-                        {
-                            isTargetFound = true;
-                            targetStart[0] = i;
-                            targetStart[1] = j;
-                        }
+                        isTargetFound = true;
+                        targetStart[0] = i;
+                        targetStart[1] = j;
+                        break;                        
 
                     }
                 }
