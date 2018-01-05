@@ -37,17 +37,14 @@ namespace MyJumpHelper
 
         private void loopThread()
         {
-            while(true) {
+            string[] cmd = { "shell /system/bin/screencap -p /sdcard/screenshot_jp.png", "pull /sdcard/screenshot_jp.png" };
+            while (true) {
                 if (this.isRunning)
-                {                    
-                    string[] cmd1 = { "shell /system/bin/screencap -p /sdcard/screenshot_jp.png"};
-                    string[] cmd2 = { "pull /sdcard/screenshot_jp.png" };
-                    this.sendADBCmd(cmd1);
-                    Thread.Sleep(300);
-                    this.sendADBCmd(cmd2);
-                    Thread.Sleep(500);
+                {
+                    this.sendADBCmd(cmd);
+                    Thread.Sleep(600);
                     this.processScreenshot();
-                    Thread.Sleep(this.jumpInterval - 800);
+                    Thread.Sleep(this.jumpInterval - 600);
                 }
                 else {
                     Thread.Sleep(1000);
