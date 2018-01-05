@@ -98,6 +98,11 @@ namespace MyJumpHelper
         {
             Color clr = Color.Empty;
 
+            if (x < 0 || x >= this.Width || y < 0 || y >= this.Height)
+            {
+                return clr;
+            }
+
             // Get color components count
             int cCount = Depth / 8;
 
@@ -139,6 +144,9 @@ namespace MyJumpHelper
         /// <param name="color"></param>
         public void SetPixel(int x, int y, Color color)
         {
+            if (x < 0 || x >= this.Width || y < 0 || y >= this.Height) {
+                return;
+            }
             // Get color components count
             int cCount = Depth / 8;
 

@@ -48,6 +48,20 @@ namespace MyJumpHelper
         }
         private void start_Click(object sender, EventArgs e)
         {
+            this.startAutoJump();
+        }
+
+        private void stop_Click(object sender, EventArgs e)
+        {
+            this.stopAutoJump();
+        }
+
+        private void stopAutoJump() {
+            this.jpTimer.Enabled = false;
+            this.stop.Enabled = false;
+            this.start.Enabled = true;
+        }
+        private void startAutoJump() {
             if (!this.test_ADB())
             {
                 return;
@@ -55,16 +69,8 @@ namespace MyJumpHelper
             this.jpTimer.Enabled = true;
             this.stop.Enabled = true;
             this.start.Enabled = false;
-            this.forward();            
+            this.forward();
         }
-
-        private void stop_Click(object sender, EventArgs e)
-        {
-            this.jpTimer.Enabled = false;
-            this.stop.Enabled = false;
-            this.start.Enabled = true;
-        }
-
 
         private void getScreenshot()
         {
@@ -81,11 +87,11 @@ namespace MyJumpHelper
             int[] ret = { 0, 0 };
             int curX = start[0];
             int curY = start[1];
-            while (true)
+            while (curX > 0 && curX < lockbmp.Width - 1)
             {
                 curX = curX + direction;
                 int newY = -1;
-                for (int y = 0; y < 9; y++)
+                for (int y = 0; y < 7; y++)
                 {
                     if (cache[curX, curY + y] != 1 && cache[curX, curY + y - 1] == 1)
                     {
@@ -125,12 +131,25 @@ namespace MyJumpHelper
         }
         private void processScreenshot()
         {
-            System.Drawing.Image img = System.Drawing.Image.FromFile("screenshot_jp.png");
+            System.Drawing.Image img;
+            Bitmap bmp;
+            LockBitmap lockbmp;
+            try
+            {
+                img = System.Drawing.Image.FromFile("screenshot_jp.png");
+                bmp = new System.Drawing.Bitmap(img);
+                lockbmp = new LockBitmap(bmp);
+                img.Dispose();
+                lockbmp.LockBits();
+            }
+            catch
+            {
+                this.stopAutoJump();
+                MessageBox.Show("打开图片时出错，请确认ADB已连接并工作正常");                
+                return;
+            }       
+             
             
-            Bitmap bmp = new System.Drawing.Bitmap(img);
-            LockBitmap lockbmp = new LockBitmap(bmp);
-            img.Dispose();
-            lockbmp.LockBits();
 
             Color curColor;
             Color curBgColor;
